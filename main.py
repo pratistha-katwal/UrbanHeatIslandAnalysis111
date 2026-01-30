@@ -5,10 +5,15 @@ import matplotlib.pyplot as plt
 import rasterio
 from rasterstats import zonal_stats
 import pandas as pd
-from src.lst_study.RasterVectorIntegration import RasterVectorIntegration
 import geemap
 import ee
+import xarray as xr, rioxarray
 from src.lst_study.data_collection import VectorDataCollection ,RasterDataCollection
+from src.lst_study.RasterandVectorDC import datacube_lst_timeseries
+from src.lst_study.NumpyArrays import plot_threhold_and_masked_modis
+from src.lst_study.NumpyArrays import st_ndvi_plot
+
+
 
 
 # Authenticate & initialize Earth Engine
@@ -16,9 +21,9 @@ ee.Authenticate()
 ee.Initialize(project='pratistha111') 
 
 
-# ------------------------------
-# Define all output folders
-# ------------------------------
+# # ------------------------------
+# # Define all output folders
+# # ------------------------------
 output_folders = [
      "Outputs/Maps",
     "src/lst_study/Outputs/Data/ams_boundary",
@@ -51,10 +56,6 @@ AOI_ee = geemap.geopandas_to_ee(AOI_gdf)
 # ------------------------------
 raster_data = RasterDataCollection(AOI_ee, start_year=2020, end_year=2025)
 
-# Access annual NumPy arrays
-arr_2020 = raster_data.arrays[2020]
-
-
 # ------------------------------
 # Export Sentinel-2 NDVI
 # ------------------------------
@@ -62,7 +63,10 @@ ndvi_path = raster_data.export_ndvi()
 print(f"Sentinel-2 NDVI saved at: {ndvi_path}")
 
 
-
+# -------------------
+# Landuse and LST Analysis
+# # ------------------
+from src.lst_study.RasterVectorIntegration import RasterVectorIntegration
 # Initialize raster-vector pipeline
 pipeline = RasterVectorIntegration(
     ams_vector_path="src/lst_study/Outputs/Data/ams_boundary/amsterdam_boundary.shp",
@@ -76,55 +80,21 @@ pipeline.select_top_classes(top_n=10)
 pipeline.plot_result(output_path="Outputs/Maps/LSTandLandUse.png") 
 
 # -------------------
-# Time series per polygon
+# Time series with Data cube
+# # ------------------
+
+datacube_lst_timeseries("src/lst_study/Outputs/Data/modis_image", "Outputs/Maps/TimeSeriesPlot_from_datacube.png")
+
 # -------------------
+# Thresholding and Clipping to Ams
+# ------------------
 
-
-def create_zonal_stats_dataframe(files, vector_gdf, stats=["mean","max","min"], save_path=None):
-    results = []
-    for f in files:
-        if not os.path.exists(f):
-            print(f"Warning: {f} does not exist. Skipping.")
-            continue
-        with rasterio.open(f) as src:
-            arr = src.read(1)
-            nodata = src.nodata
-            transform = src.transform
-            zs = zonal_stats(vector_gdf, arr, affine=transform, stats=stats, nodata=nodata)
-            zs[0]["time"] = f.split("_")[-1].split(".")[0]
-            results.append(zs[0])
-    df = pd.DataFrame(results)
-    if save_path:
-        df.to_csv(save_path, index=False)
-        print(f"DataFrame saved to {save_path}")
-    return df
-
-gdf = gpd.read_file("src/lst_study/Outputs/Data/ams_boundary/amsterdam_boundary.shp")
-gdf = gdf.to_crs("EPSG:4326")
-
-files = sorted(glob.glob("src/lst_study/Outputs/Data/modis_image/modis_lst_mean_*.tif"))
-print("Raster files found:", files)
-
-df = create_zonal_stats_dataframe(
-    files=files,
-    vector_gdf=gdf,
-    stats=["mean","max","min"],
-    save_path="src/lst_study/Outputs/Data/Dataframe.csv"
+masked_array = plot_threhold_and_masked_modis(
+    threshold=25,
+    output_path="Outputs/Maps/MODIS_masked_2025.png"
 )
-print(df)
 
-# Plot
-ymin = df[["min","max"]].min().min() - 2
-ymax = df[["min","max"]].max().max() + 2
-plt.figure(figsize=(8,5))
-plt.plot(df["time"], df["mean"], marker="o", label="Mean LST")
-plt.plot(df["time"], df["max"], alpha=0.5, linestyle="--", label="Max LST")
-plt.plot(df["time"], df["min"], alpha=0.5, linestyle="--", label="Min LST")
-plt.xlabel("Year")
-plt.ylabel("LST (°C)")
-plt.title("Land Surface Temperature Time Series")
-plt.grid(True)
-plt.legend()
-plt.ylim(ymin, ymax)
-plt.savefig("Outputs/Maps/TimeSeriesPlot.png", dpi=300, bbox_inches='tight')
-plt.show()
+# -------------------
+# LST AND NDVI
+# ------------------
+lst, ndvi = st_ndvi_plot()

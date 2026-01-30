@@ -99,7 +99,7 @@ class RasterVectorIntegration:
                           legend=True, ax=ax[0,1], edgecolor="black", linewidth=0.2,
                           missing_kwds={"color":"lightgrey","label":"No Data"})
         self.amsboundary.boundary.plot(ax=ax[0,1], color="black", linewidth=1)
-        ax[0,1].set_title("Mean LST per Land-Use Polygon")
+        ax[0,1].set_title("Mean LST per Land-Use Polygon on Year 2025")
         ax[0,1].axis("off")
 
         # Bar chart: dominant
