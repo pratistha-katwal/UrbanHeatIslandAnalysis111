@@ -1,0 +1,22 @@
+[project]
+name = "lst-study"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy (>=2.4.1,<3.0.0)",
+    "pandas (>=3.0.0,<4.0.0)",
+    "matplotlib (>=3.10.8,<4.0.0)",
+    "geemap (>=0.37.1,<0.38.0)"
+]
+
+[tool.poetry]
+packages = [{include = "lst_study", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
