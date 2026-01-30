@@ -64,13 +64,13 @@ The script will:
 ### **Key Findings:**
 Residential areas dominate Amsterdam's urban landscape, followed by industrial zones, commercial districts, and fragmented green spaces, including forests, meadows, and grasslands. A clear Urban Heat Island (UHI) signature emerges from our analysis, with built-up land uses consistently exhibiting higher temperatures, while vegetated and low-density areas remain notably cooler. Temperature hotspots cluster prominently in:
 
-**`High-temperature zones: Dense urban cores, industrial corridors, and transportation networks
+- `High-temperature zones:-  Dense urban cores, industrial corridors, and transportation networks
 
-**`Cooler zones: Forested areas, meadows, and allotment gardens
+- `Cooler zones: Forested areas, meadows, and allotment gardens
 
 Transportation infrastructure, particularly highways, emerges as the hottest land use category, followed closely by commercial and retail zones. Residential areas rank high in temperature but are not at the very top. The coolest categories are consistently vegetated: grass, forests, allotments, and meadows. The five-year analysis reveals clear climate signals:
 
-**`2022 stands out as the hottest year across all metrics (mean, maximum, and minimum temperatures).
+- `2022 stands out as the hottest year across all metrics (mean, maximum, and minimum temperatures).
 
 ## 🛠️ **Technical Requirements**
 
