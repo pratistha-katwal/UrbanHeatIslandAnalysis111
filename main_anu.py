@@ -1,70 +1,34 @@
-import numpy as np
-import rasterio
 import matplotlib.pyplot as plt
+import numpy as np
 
-from src.lst_study.Tensors import run_tensor_benchmark
+# ... inside main(), after results = run_tensor_benchmark(...)
 
+lst_blurred = results["torch_blur"]
 
-def main():
-    # --------------------------------------------------
-    # Path to existing MODIS LST file
-    # --------------------------------------------------
-    lst_tif = r"C:\Users\anupr\Downloads\Outputs\Outputs\Data\modis_image\modis_lst_mean_2025.tif"
+# Use same color scale for both images (very important for fair comparison)
+vmin = np.nanpercentile(lst_array, 2)
+vmax = np.nanpercentile(lst_array, 98)
 
-    # --------------------------------------------------
-    # Read raster
-    # --------------------------------------------------
-    with rasterio.open(lst_tif) as src:
-        lst_array = src.read(1).astype(np.float32)
-        nodata = src.nodata
+plt.figure(figsize=(11, 4))
 
-    if nodata is not None:
-        lst_array[lst_array == nodata] = np.nan
+ax1 = plt.subplot(1, 2, 1)
+im1 = ax1.imshow(lst_array, cmap="inferno", vmin=vmin, vmax=vmax)
+ax1.set_title("Original LST")
+ax1.set_axis_off()
+plt.colorbar(im1, ax=ax1, fraction=0.046, label="LST (°C)")
 
-    print("LST array loaded with shape:", lst_array.shape)
+ax2 = plt.subplot(1, 2, 2)
+im2 = ax2.imshow(lst_blurred, cmap="inferno", vmin=vmin, vmax=vmax)
+ax2.set_title("Gaussian-smoothed LST")
+ax2.set_axis_off()
+plt.colorbar(im2, ax=ax2, fraction=0.046, label="LST (°C)")
 
-    # --------------------------------------------------
-    # PART A: Tensor benchmark
-    # --------------------------------------------------
-    results = run_tensor_benchmark(
-        lst_array,
-        size=11,
-        sigma=2.0
-    )
+plt.suptitle("MODIS LST (2025): Before vs After Gaussian Smoothing", y=1.02)
+plt.tight_layout()
 
-    print("\nTensor benchmark (Gaussian blur):")
-    print(" NumPy time (s):", results["numpy_time_sec"])
-    print(" Torch time (s):", results["torch_time_sec"])
-    print(" Torch device:", results["torch_device"])
+# Save
+out_path = "Outputs/Maps/Tensor_Gaussian_Blur.png"
+plt.savefig(out_path, dpi=300, bbox_inches="tight")
+plt.show()
 
-    # --------------------------------------------------
-    # Visualization (INSIDE main)
-    # --------------------------------------------------
-    lst_blurred = results["torch_blur"]
-
-    plt.figure(figsize=(10, 4))
-
-    plt.subplot(1, 2, 1)
-    plt.imshow(lst_array, cmap="hot")
-    plt.title("Original LST")
-    plt.colorbar(fraction=0.046)
-
-    plt.subplot(1, 2, 2)
-    plt.imshow(lst_blurred, cmap="hot")
-    plt.title("Gaussian Blurred LST")
-    plt.colorbar(fraction=0.046)
-
-    plt.tight_layout()
-
-# Save figure for report
-    plt.savefig("Outputs/Maps/Tensor_Gaussian_Blur.png", dpi=300)
-
-    plt.show()
-
-
-
-# --------------------------------------------------
-# This MUST be last
-# --------------------------------------------------
-if __name__ == "__main__":
-    main()
+print("Saved:", out_path)
