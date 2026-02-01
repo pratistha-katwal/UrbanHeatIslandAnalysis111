@@ -1,113 +1,152 @@
 # **Urban Heat Island Analysis in Amsterdam**
 
-## 📋 **Project Overview**
-This project analyzes Urban Heat Islands (UHI) in Amsterdam using satellite data and geospatial analysis. It calculates how different land uses affect surface temperatures and tracks temperature changes over 5 years.
+## 📋 Project Overview
 
-## 🎯 **What This Project Does**
-- Downloads MODIS satellite temperature data for Amsterdam (2020-2025)
-- Fetches Amsterdam boundaries and land use data
-- Calculates average temperatures for different land uses (parks, residential areas, etc.)
-- Shows which land use areas are hottest 
-- Tracks temperature changes over time (2020-2025)
+This project analyzes **Urban Heat Islands (UHI)** in Amsterdam by integrating **satellite raster data** and **vector land use information**. It quantifies how different land uses affect surface temperatures and tracks changes over a **5-year period (2020–2025)**.
 
-## 📁 **Project Structure**
+**Key Objectives:**
+
+* Calculate average surface temperatures per land use type
+* Identify temperature hotspots and cooler zones
+* Analyze temporal trends to detect high-temperature years
+* Demonstrate raster–vector integration, NumPy/Tensor operations, and data cube analysis
+
+---
+
+## 🎯 Features & Workflow
+
+1. **Download Data:**
+
+   * MODIS Land Surface Temperature (LST) 2020–2025
+   * Amsterdam boundaries & land use polygons from OpenStreetMap & PDOK
+2. **Process Data:**
+
+   * Apply masks to raster data using vector geometries
+   * Compute zonal statistics per land use
+   * Convert rasters to **NumPy arrays** and **TensorFlow/PyTorch tensors** for analysis
+   * Handle multi-year data in **Xarray data cubes**
+3. **Visualize Results:**
+
+   * Maps showing land use vs temperature
+   * Time series charts tracking UHI trends
+   * Top 10 hottest/coolest land uses
+
+---
+
+## 🏗️ Project Structure
+
 ```
 LST_study/
-LST_study/
-├── main.py                    
+├── main.py                        # Main pipeline execution
 ├── src/lst_study/
-│   ├── data_collection.py     ← Earth Engine + downloads
-│   ├── NumpyArrays.py         ← 3.1 NumPy / array ops
-│   ├── Tensors.py             ← 3.2 TensorFlow / PyTorch
-│   ├── VectorProcessing.py    ← 3.3 vector ops
-│   ├── RasterandVectorDC.py   ← 3.4 xarray / data cube
-│   ├── RasterVectorIntegration.py ← 3.5 zonal stats etc.
+│   ├── data_collection.py         # Earth Engine downloads
+│   ├── NumpyArrays.py             # NumPy array operations
+│   ├── Tensors.py                 # TensorFlow/PyTorch operations
+│   ├── VectorProcessing.py        # GeoPandas/Shapely vector operations
+│   ├── RasterandVectorDC.py       # Xarray raster/vector data cubes
+│   ├── RasterVectorIntegration.py # Zonal statistics & raster–vector interaction
 │   └── __init__.py
-├── Outputs/                       
-│   └── Maps/                       ←Outputs Map
-        └── LSTandLandUse.png
-        └── TimeSeriesPlot.png
-└── pyproject.toml
+├── Outputs/
+│   ├── Maps/
+│   │   ├── LSTandLandUse.png
+│   │   ├── LSTandNDVI.png
+│   │   ├── MODIS_masked_2025.png
+│   │   ├── Tensor_Gaussian_Blur.png
+│   │   ├── TimeSeriesPlot_from_datacube.png
+│   │   ├── Top10_Hottest_Landuse_MeanLST_2025.png
+│   │   └── Top10_Landuse_Area.png
+│   └── Tables/
+│       └── mean_lst_by_landuse_2025.csv
+├── tests/test.py                  # Unit testing
+├── main_anu.py
+├── main_raster_vector.py
+├── main_vector.py  
+└── pyproject.toml                 # Poetry environment config
 ```
 
-## 🚀 **Quick Start**
+---
 
-### **Step 1: Install Requirements**
+## 🚀 Quick Start
+
+### 1️⃣ Clone Repository
+
 ```bash
+git clone https://github.com/pratistha-katwal/UrbanHeatIslandAnalysis111
+cd UrbanHeatIslandAnalysis111
 poetry install
 ```
 
-### **Step 2: Set Up Google Earth Engine**
-1. Go to [earthengine.google.com](https://earthengine.google.com/)
-2. Sign up for an account
-3. Create a project (any name works)
+### 2️⃣ Set Up Google Earth Engine
 
-### **Step 3: Run the Analysis**
+1. Sign up at [Earth Engine](https://earthengine.google.com/)
+2. Create a project (any name works)
+3. Authenticate:
+
+```python
+import ee
+ee.Authenticate()
+ee.Initialize(project='pratistha111')  # replace with your project name in 'main.py'
+```
+
+### 3️⃣ Run the Analysis
+
 ```bash
 python main.py
 ```
 
-The script will:
-1. Authenticate with Google Earth Engine (opens browser)
-2. Download Amsterdam boundaries and land use data
-3. Download temperature data from MODIS satellite (2020-2025)
-4. Create maps showing hottest areas
-5. Generate temperature time series chart
+**Outputs Generated:**
 
-## 📊 **What You'll Get**
+* Zonal temperature maps by land use
+* Time series plots (2020–2025)
+* Top 10 hottest and coolest land use categories
+* Masked MODIS raster images and tensor-processed visualizations
 
-### **Output Files:**
-1. **`Outputs/Maps/LSTandLandUse.png`** - Map showing temperatures by land use
-2. **`Outputs/Maps/TimeSeriesPlot.png`** - Chart of temperature changes (2020-2025)
+---
 
+## 📊 Key Findings
 
-### **Key Findings:**
-Residential areas dominate Amsterdam's urban landscape, followed by industrial zones, commercial districts, and fragmented green spaces, including forests, meadows, and grasslands. A clear Urban Heat Island (UHI) signature emerges from our analysis, with built-up land uses consistently exhibiting higher temperatures, while vegetated and low-density areas remain notably cooler. Temperature hotspots cluster prominently in:
+* **Hottest zones:** Dense urban cores, industrial corridors, major transportation networks
+* **Coolest zones:** Forests, meadows, grasslands, allotment gardens
+* **Top Land Use by Temperature:** Highways > Commercial/retail > Residential
+* **Lowest Temperature Land Use:** Vegetated areas consistently cooler
+* **Temporal Insight:** 2022 recorded the highest mean, max, and min temperatures
 
-- `High-temperature zones:-  Dense urban cores, industrial corridors, and transportation networks
+---
 
-- `Cooler zones: Forested areas, meadows, and allotment gardens
+## 🛠️ Technical Components
 
-Transportation infrastructure, particularly highways, emerges as the hottest land use category, followed closely by commercial and retail zones. Residential areas rank high in temperature but are not at the very top. The coolest categories are consistently vegetated: grass, forests, allotments, and meadows. The five-year analysis reveals clear climate signals:
+| Component                 | Tools / Methods                                                                      |
+| ------------------------- | ------------------------------------------------------------------------------------ |
+| Raster Data Handling      | `rasterio`, `NumPy`, masking & thresholding                                          |
+| Vector Processing         | `GeoPandas`, `Fiona`, `Shapely`, geometry & attribute operations                     |
+| Tensor Operations         | `TensorFlow` / `PyTorch` for convolution, aggregation, regression; GPU/CPU awareness |
+| Data Cube Analysis        | `Xarray` for multi-year raster time series; temporal aggregation per polygon         |
+| Raster–Vector Integration | Zonal statistics, raster sampling, bidirectional raster ↔ vector operations          |
+| Visualization             | `Matplotlib` for maps, charts, and temporal plots                                    |
 
-- `2022 stands out as the hottest year across all metrics (mean, maximum, and minimum temperatures).
+---
 
-## 🛠️ **Technical Requirements**
+## 🔧 Customization Options
 
-### **Python Packages:**
-- `earthengine-api` - Google Earth Engine access
-- `geemap` - Map visualization
-- `geopandas` - Geographic data handling
-- `rasterio` - Satellite image processing
-- `matplotlib` - Plotting and charts
+* **Study Area:** Change `"Amsterdam, Netherlands"` in `data_collection.py`
+* **Years:** Modify `start_year` and `end_year` in `data_collection.py`
+* **Raster Source:** Replace MODIS with ECOSTRESS or Sentinel LST products if desired
 
-### **Data Sources:**
-- **Temperature**: NASA MODIS satellite (1km resolution)
-- **Boundaries**: PDOK Dutch government service
-- **Land Use**: OpenStreetMap
+---
 
+## ❓ Common Issues
 
-## ❓ **Common Issues & Solutions**
+* **Authentication Error:** Ensure Earth Engine account is active and run `earthengine authenticate`
+* **Slow Downloads:** Check network and server limits on MODIS data
 
-### **"Authentication Error"**
-- Make sure you've signed up for Google Earth Engine
-- Run `earthengine authenticate` in terminal
-- Check your internet connection
+---
 
+## 📚 References & Resources
 
-## 🔧 **Customization Options**
-
-### **Change Study Area:**
-Edit `"Amsterdam, Netherlands"` to your city in `data_collection.py`
-
-### **Change Years:**
-Modify `start_year=2020` and `end_year=2025` in `main.py`
-
-
-## 📚 **Learn More**
-- [Google Earth Engine Documentation](https://developers.google.com/earth-engine)
-- [MODIS Satellite Data](https://modis.gsfc.nasa.gov/)
-- [Urban Heat Island Basics](https://www.epa.gov/heatislands)
-
+* [Google Earth Engine Documentation](https://developers.google.com/earth-engine)
+* [MODIS Satellite Data](https://modis.gsfc.nasa.gov/)
+* [Urban Heat Island Basics](https://www.epa.gov/heatislands)
+* [OpenStreetMap Data](https://www.openstreetmap.org)
+* [PDOK Dutch Mapping Services](https://www.pdok.nl/)
 
 
